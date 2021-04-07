@@ -22,10 +22,10 @@ namespace API.Entities
         public string Contry { get; set; }
         public ICollection<Photo> Photos { get; set; }
 
-        public int GetAge()
-        {
-            return DateOfBirth.CalculateAge();
-        }
+        //public int GetAge()
+        //{
+        //    return DateOfBirth.CalculateAge();
+        //}
 
     
     }
