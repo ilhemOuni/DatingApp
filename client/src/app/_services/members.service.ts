@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { MemberDetailComponent } from '../members/member-detail/member-detail.component';
 import { PaginatedResult } from '../_models/pagination';
 import { User } from '../_models/user';
-import { UserParams } from '../_models/userParms';
+import { UserParams } from '../_models/userParams';
 import { Member } from '../_modules/member';
 import { AccountService } from './account.service';
 
@@ -48,7 +48,7 @@ export class MembersService {
      }
 
 
-    let params = this.getPginationHeaders(userParams.pageNumber, userParams.pageSize);
+    let params = this.getPaginationHeaders(userParams.pageNumber, userParams.pageSize);
 
     params = params.append('minAge', userParams.minAge.toString());
     params = params.append('maxAge', userParams.maxAge.toString());
@@ -56,7 +56,7 @@ export class MembersService {
     params = params.append('orderBy', userParams.orderBy);
 
 
-    return this.getPaginationResult<Member[]>(this.baseUrl + 'users',params).
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'users',params).
       pipe(map(response => {
         this.memberCache.set(Object.values(userParams).join('-'), response)
         return response;
@@ -97,7 +97,19 @@ export class MembersService {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
 
-  private getPaginationResult<T>(url,params) {
+  addLike(username: string) {
+    return this.http.post(this.baseUrl + 'likes/' + username, {})
+  }
+
+  getLikes(predicate: string, pageNumber, pageSize) {
+
+     let params = this.getPaginationHeaders(pageNumber, pageSize);
+     params = params.append('predicate', predicate);
+     return this.getPaginatedResult<Partial<Member[]>>(this.baseUrl + 'likes', params);
+  }
+
+
+  private getPaginatedResult<T>(url,params) {
     const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>() ;
      return this.http.get<T>(url, { observe: 'response', params }).pipe(
        map(response => {
@@ -110,7 +122,7 @@ export class MembersService {
      );
    }
  
-   private getPginationHeaders(pageNumber : number, pageSize : number){
+   private getPaginationHeaders(pageNumber : number, pageSize : number){
      let params = new HttpParams();
  
      params = params.append('pageNumber', pageNumber.toString());
